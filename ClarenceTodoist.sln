@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35312.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClarenceTodoist", "ClarenceTodoist\ClarenceTodoist.csproj", "{9F5C5E5C-6BF6-45B3-A19D-C2B1F911C407}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9F5C5E5C-6BF6-45B3-A19D-C2B1F911C407}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F5C5E5C-6BF6-45B3-A19D-C2B1F911C407}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F5C5E5C-6BF6-45B3-A19D-C2B1F911C407}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F5C5E5C-6BF6-45B3-A19D-C2B1F911C407}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D327247C-6429-455F-85A4-38C4CEB8CC03}
+	EndGlobalSection
+EndGlobal
