@@ -44,7 +44,6 @@ namespace ClarenceTodoist
         protected void DU_request(string Func)
         {   
             TaskDU_EvHandler.UpdateTask(this, new DUEventArgs(Func));
-
         }
         #endregion
     }

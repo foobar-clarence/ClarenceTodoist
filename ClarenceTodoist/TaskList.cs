@@ -19,6 +19,7 @@ namespace ClarenceTodoist
         const int UserTaskList_Width = 650;
         const int TaskWidth = UserTaskList_Width - 50;
         const int TaskHeight = 15;
+        const int TaskGap = 20;
 
         static void Main()
         {
@@ -51,36 +52,40 @@ namespace ClarenceTodoist
 
             Button C_Task = new Button
             {
-                Location = new Point(UserTaskList_Width - 150, UserTaskList_Height - 100),
+                Location = new Point(this.Width - 200, this.Height - 150),
                 AutoSize = true,
                 Text = "+"
             };
 
             C_Task.Click += new EventHandler(Create_Button_Click);
 
-            UserTaskList.Controls.Add(C_Task);
+            this.Controls.Add(C_Task);
+            C_Task.BringToFront();
 
             #endregion
 
-            DisplayTask();
+            TaskDisplayUpdate();
             TaskDU_EvHandler.DisplayUpdateRequest += new EventHandler(DURequestReceiver);
         }
 
         private void DURequestReceiver(object sender, EventArgs e)
         {
-            DisplayTask();
+            TaskDisplayUpdate();
         }
 
         #region Display_Task
-        public void DisplayTask()
+        public void TaskDisplayUpdate()
         {
+            if(UserTaskList.Controls.Count > 0)
+                Clear_UserTasklist();
+
             string connstr = "server=127.0.0.1;port=3306;user=root;password=CLarenGc5416;database=clatodoist";
 
             using (var connection = new MySqlConnection(connstr))
             {
                 connection.Open();
 
-                string Display = "SELECT * FROM TASK";
+                string Display = "SELECT * FROM task";
                 using (var cmd = new MySqlCommand(Display, connection))
                 {
                     var reader = cmd.ExecuteReader();
@@ -90,20 +95,38 @@ namespace ClarenceTodoist
                     {
                         string name = reader.GetString("name");
                         bool is_Done = reader.GetBoolean("isDone");
-
+                        
                         if (!is_Done)
                         {
                             Label label = new Label
                             {
-                                Location = new Point(0, counter * TaskHeight),
+                                Location = new Point(0, counter * (TaskHeight + TaskGap)),
                                 Size = new Size(TaskWidth, TaskHeight),
-                                Text = $"{name}"
                             };
+                            label.Text = name;
+
+                            Console.WriteLine(name + "\n");
+                            label.Tag = reader.GetInt32("ID");
+                            label.Click += new EventHandler(TaskClick);
                             UserTaskList.Controls.Add(label);
                             counter++;
                         }
                     }
                 }
+            }
+        }
+        #endregion
+
+        #region TaskListClear
+        private void Clear_UserTasklist()
+        {
+            int taskCount = UserTaskList.Controls.Count;
+            for(int i = 0; i < taskCount; i++)
+            {
+                Control control = UserTaskList.Controls[0];
+                UserTaskList.Controls.Remove(UserTaskList.Controls[0]);
+                if(control != null)
+                    control.Dispose();
             }
         }
         #endregion
@@ -114,6 +137,30 @@ namespace ClarenceTodoist
             CreateWin createWin = new CreateWin();
             createWin.ShowDialog();
         }
+        #endregion
+
+        #region Task_Click
+
+        private void TaskClick(object sender, EventArgs e)
+        {
+            Label label = sender as Label;
+            int TagValue = -1;
+            if(label != null)
+            {
+                if(label.Tag is int)
+                    TagValue = (int)label.Tag;
+            }
+
+            if(TagValue == -1)
+            {
+                MessageBox.Show("Error tag of the label");
+                return;
+            }
+
+            ReviseWin reviseWin = new ReviseWin(TagValue, false); // id, isDone
+            reviseWin.ShowDialog();
+        }
+
         #endregion
     }
 }
