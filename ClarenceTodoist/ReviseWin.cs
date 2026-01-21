@@ -27,23 +27,14 @@ namespace ClarenceTodoist
 
         private void ReviseWin_Load(object sender, EventArgs e)
         {
-            string connstr = "server=127.0.0.1;port=3306;user=root;password=CLarenGc5416;database=clatodoist";
-
-            using (var connection = new MySqlConnection(connstr))
+            using (var reader = MysqlVisit.GetReader($"SELECT * FROM task WHERE ID = {TaskID}"))
             {
-                connection.Open();
-
-                string GetTaskInfo = $"SELECT * FROM task WHERE ID = {TaskID}";
-                using (var cmd = new MySqlCommand(GetTaskInfo, connection))
+                while (reader.Read())
                 {
-                    MySqlDataReader reader = cmd.ExecuteReader();
-
-                    while (reader.Read())
-                    {
-                        TaskName = reader.GetString("name");
-                    }
+                    TaskName = reader.GetString("name");
                 }
             }
+            MysqlVisit.CloseMysql();
 
             nameRevised.Text = TaskName;
         }
@@ -53,18 +44,8 @@ namespace ClarenceTodoist
             string newName = nameRevised.Text;
             if (newName != "" && newName != TaskName)
             {
-                string connstr = "server=127.0.0.1;port=3306;user=root;password=CLarenGc5416;database=clatodoist";
-
-                using (var connection = new MySqlConnection(connstr))
-                {
-                    connection.Open();
-
-                    string ChangeTaskName = $"UPDATE task SET name='{newName}' WHERE ID = {TaskID}";
-                    using (var cmd = new MySqlCommand(ChangeTaskName, connection))
-                    {
-                        int row_affected = cmd.ExecuteNonQuery();
-                    }
-                }
+                MysqlVisit.ExNonQuery($"UPDATE task SET name='{newName}' WHERE ID = {TaskID}");
+                MysqlVisit.CloseMysql();
             }
             TaskDU_EvHandler.UpdateTask(this, new DUEventArgs("ConfirmBtn from ReviseWin"));
             this.Close();
@@ -72,18 +53,9 @@ namespace ClarenceTodoist
 
         private void DeleteBtn_Click(object sender, EventArgs e)
         {
-            string connstr = "server=127.0.0.1;port=3306;user=root;password=CLarenGc5416;database=clatodoist";
+            MysqlVisit.ExNonQuery($"DELETE from task WHERE ID = {TaskID}");
+            MysqlVisit.CloseMysql();
 
-            using (var connection = new MySqlConnection(connstr))
-            {
-                connection.Open();
-
-                string DeleteTask = $"DELETE from task WHERE ID = {TaskID}";
-                using (var cmd = new MySqlCommand(DeleteTask, connection))
-                {
-                    int row_affected = cmd.ExecuteNonQuery();
-                }
-            }
             TaskDU_EvHandler.UpdateTask(this, new DUEventArgs("ConfirmBtn from ReviseWin"));
             this.Close();
         }

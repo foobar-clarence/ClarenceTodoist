@@ -13,10 +13,10 @@ namespace ClarenceTodoist
         public DateTime requestTime { get; set; }
         public string requestFunc { get; set; }
 
-        public DUEventArgs(string Func = "Unknown function")
+        public DUEventArgs(string ReqFunc = "Unknown function")
         {
             requestTime = DateTime.Now;
-            requestFunc = Func;
+            requestFunc = ReqFunc;
         }
     }
 
@@ -32,7 +32,6 @@ namespace ClarenceTodoist
             }
 
             Console.WriteLine($"Function {eventargs.requestFunc} required for task update at {eventargs.requestTime}");
-            //MessageBox.Show($"Function {eventargs.requestFunc} required for task update at {eventargs.requestTime}");
         }
     }
 }

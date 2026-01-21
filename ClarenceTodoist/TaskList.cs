@@ -79,40 +79,31 @@ namespace ClarenceTodoist
             if(UserTaskList.Controls.Count > 0)
                 Clear_UserTasklist();
 
-            string connstr = "server=127.0.0.1;port=3306;user=root;password=CLarenGc5416;database=clatodoist";
-
-            using (var connection = new MySqlConnection(connstr))
+            using (var reader = MysqlVisit.GetReader("SELECT * FROM task"))
             {
-                connection.Open();
-
-                string Display = "SELECT * FROM task";
-                using (var cmd = new MySqlCommand(Display, connection))
+                int counter = 0;
+                while (reader.Read())
                 {
-                    var reader = cmd.ExecuteReader();
+                    string name = reader.GetString("name");
+                    bool is_Done = reader.GetBoolean("isDone");
 
-                    int counter = 0;
-                    while (reader.Read())
+                    if (!is_Done)
                     {
-                        string name = reader.GetString("name");
-                        bool is_Done = reader.GetBoolean("isDone");
-                        
-                        if (!is_Done)
+                        Label label = new Label
                         {
-                            Label label = new Label
-                            {
-                                Location = new Point(0, counter * (TaskHeight + TaskGap)),
-                                Size = new Size(TaskWidth, TaskHeight),
-                            };
-                            label.Text = name;
+                            Location = new Point(0, counter * (TaskHeight + TaskGap)),
+                            Size = new Size(TaskWidth, TaskHeight),
+                        };
+                        label.Text = name;
 
-                            Console.WriteLine(name + "\n");
-                            label.Tag = reader.GetInt32("ID");
-                            label.Click += new EventHandler(TaskClick);
-                            UserTaskList.Controls.Add(label);
-                            counter++;
-                        }
+                        Console.WriteLine(name + "\n");
+                        label.Tag = reader.GetInt32("ID");
+                        label.Click += new EventHandler(TaskClick);
+                        UserTaskList.Controls.Add(label);
+                        counter++;
                     }
                 }
+                MysqlVisit.CloseMysql();
             }
         }
         #endregion
