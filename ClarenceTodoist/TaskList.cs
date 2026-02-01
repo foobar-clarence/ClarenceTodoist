@@ -6,6 +6,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -14,19 +15,17 @@ namespace ClarenceTodoist
 {
     public partial class TaskList : Form
     {
-        Panel UserTaskList;
-        const int UserTaskList_Height = 600;
-        const int UserTaskList_Width = 650;
-        const int TaskWidth = UserTaskList_Width - 50;
-        const int TaskHeight = 15;
-        const int TaskGap = 20;
+        Panel StatusBar;
+        const int StatusBar_Width = 250;
 
-        static void Main()
-        {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new TaskList());
-        }
+        Panel UserTaskList;
+
+        const int TaskListGap_Top = 100;
+        const int TaskWidth = 450;
+        const int TaskHeight = 15;
+        const int TaskGap_Top = 15;
+        const int TaskGap_Bottom = 9;
+        const int GaplineThickness = 1;
 
         public TaskList()
         {
@@ -35,14 +34,29 @@ namespace ClarenceTodoist
 
         private void TaskList_Load(object sender, EventArgs e)
         {
+            #region StatusBar
+
+            StatusBar = new Panel
+            {
+                Location = new Point(0, 0),
+                Size = new Size(StatusBar_Width, Height),
+                BorderStyle = BorderStyle.None,
+                BackColor = Color.FromArgb(227, 250, 255)
+            };
+            this.Controls.Add(StatusBar);
+
+            #endregion
+
             #region UserTaskList
+
+            int UserTaskList_Width = Width - StatusBar_Width;
+            int UserTaskList_Height = Height;
             UserTaskList = new Panel
             {
-                Location = new Point(Width - UserTaskList_Width, Height - UserTaskList_Height),
+                Location = new Point(StatusBar_Width, 0),
                 Size = new Size(UserTaskList_Width, UserTaskList_Height),
                 BorderStyle = BorderStyle.None,
-
-                Visible = true
+                BackColor = Color.White
             };
 
             this.Controls.Add(UserTaskList);
@@ -79,28 +93,62 @@ namespace ClarenceTodoist
             if(UserTaskList.Controls.Count > 0)
                 Clear_UserTasklist();
 
+            Point startPoint = new Point((UserTaskList.Width - TaskWidth) / 2, TaskListGap_Top);
+
             using (var reader = MysqlVisit.GetReader("SELECT * FROM task"))
             {
-                int counter = 0;
+                int TaskOffest_Y = 0;
+                
                 while (reader.Read())
                 {
+                    #region ParametersGetting
                     string name = reader.GetString("name");
                     bool is_Done = reader.GetBoolean("isDone");
+                    #endregion
 
                     if (!is_Done)
                     {
+                        #region LabelDrawing
+
+                        TaskOffest_Y += TaskGap_Top;
+
+                        int LabelX = startPoint.X;
+                        int LabelY = startPoint.Y + TaskOffest_Y;
                         Label label = new Label
                         {
-                            Location = new Point(0, counter * (TaskHeight + TaskGap)),
-                            Size = new Size(TaskWidth, TaskHeight),
+                            Location = new Point(LabelX, LabelY),
+                            AutoSize = true,
+                            Font = new Font("微软雅黑", 9f),
+                            Text = name,
+                            UseCompatibleTextRendering = true,
+                            Width = TaskWidth,
                         };
-                        label.Text = name;
 
-                        Console.WriteLine(name + "\n");
+                        label.AutoEllipsis = true;
                         label.Tag = reader.GetInt32("ID");
                         label.Click += new EventHandler(TaskClick);
                         UserTaskList.Controls.Add(label);
-                        counter++;
+
+                        TaskOffest_Y += label.Height;
+                        #endregion
+
+                        #region GapLineDrawing
+
+                        // 线条与文字间隔设置
+                        TaskOffest_Y += TaskGap_Bottom;
+
+                        int GL_X = LabelX;
+                        int GL_Y = startPoint.Y + TaskOffest_Y;
+                        Panel Gapline = new Panel { 
+                            Location = new Point (GL_X, GL_Y),
+                            Size = new Size (TaskWidth, GaplineThickness),
+                            BackColor = Color.FromArgb(160, 160, 160),
+                            BorderStyle = BorderStyle.None,
+                        };
+                        UserTaskList.Controls.Add(Gapline);
+                        Gapline.BringToFront();
+
+                        #endregion
                     }
                 }
                 MysqlVisit.CloseMysql();

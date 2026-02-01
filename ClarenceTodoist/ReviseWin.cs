@@ -42,13 +42,20 @@ namespace ClarenceTodoist
         private void ConfirmBtn_Click(object sender, EventArgs e)
         {
             string newName = nameRevised.Text;
-            if (newName != "" && newName != TaskName)
+            if (newName != "")
             {
-                MysqlVisit.ExNonQuery($"UPDATE task SET name='{newName}' WHERE ID = {TaskID}");
-                MysqlVisit.CloseMysql();
+                if (newName != TaskName)
+                {
+                    MysqlVisit.ExNonQuery($"UPDATE task SET name='{newName}' WHERE ID = {TaskID}");
+                    MysqlVisit.CloseMysql();
+                }
+                TaskDU_EvHandler.UpdateTask(this, new DUEventArgs("ConfirmBtn from ReviseWin"));
+                this.Close();
             }
-            TaskDU_EvHandler.UpdateTask(this, new DUEventArgs("ConfirmBtn from ReviseWin"));
-            this.Close();
+            else
+            {
+                MessageBox.Show("Please Enter the task name");
+            }
         }
 
         private void DeleteBtn_Click(object sender, EventArgs e)

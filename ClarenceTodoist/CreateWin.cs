@@ -22,17 +22,20 @@ namespace ClarenceTodoist
         private void ConfirmBtn_Click(object sender, EventArgs e)
         {
             string taskname = TaskName.Text;
-            if(taskname == "")
+
+            if(taskname != "")
+            {
+                MysqlVisit.ExNonQuery($"INSERT INTO task(isDone, name) VALUES(0, '{taskname}')");
+                MysqlVisit.CloseMysql();
+
+                TaskDU_EvHandler.UpdateTask(this, new DUEventArgs("ConfirmBtn_Click from CreatWin"));
+                this.Close();
+            }
+            else
             {
                 MessageBox.Show("Please Enter the task name");
                 return;
             }
-
-            MysqlVisit.ExNonQuery($"INSERT INTO task(isDone, name) VALUES(0, '{taskname}')");
-            MysqlVisit.CloseMysql();
-
-            TaskDU_EvHandler.UpdateTask(this, new DUEventArgs("ConfirmBtn_Click from CreatWin"));
-            this.Close();
         }
         #endregion
     }
