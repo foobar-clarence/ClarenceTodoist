@@ -27,6 +27,11 @@ namespace ClarenceTodoist
         const int TaskGap_Bottom = 9;
         const int GaplineThickness = 1;
 
+        const int SizeOfTaskCreateButton = 25;
+        const int GapOfTaskCreateButton = 15;
+
+        const int DoneBtnSize = 25;
+
         public TaskList()
         {
             InitializeComponent();
@@ -62,22 +67,6 @@ namespace ClarenceTodoist
             this.Controls.Add(UserTaskList);
             #endregion
 
-            #region Create_Button
-
-            Button C_Task = new Button
-            {
-                Location = new Point(this.Width - 200, this.Height - 150),
-                AutoSize = true,
-                Text = "+"
-            };
-
-            C_Task.Click += new EventHandler(Create_Button_Click);
-
-            this.Controls.Add(C_Task);
-            C_Task.BringToFront();
-
-            #endregion
-
             TaskDisplayUpdate();
             TaskDU_EvHandler.DisplayUpdateRequest += new EventHandler(DURequestReceiver);
         }
@@ -88,17 +77,19 @@ namespace ClarenceTodoist
         }
 
         #region Display_Task
+
+        //更新用户任务界面的显示情况
         public void TaskDisplayUpdate()
         {
             if(UserTaskList.Controls.Count > 0)
                 Clear_UserTasklist();
 
-            Point startPoint = new Point((UserTaskList.Width - TaskWidth) / 2, TaskListGap_Top);
 
             using (var reader = MysqlVisit.GetReader("SELECT * FROM task"))
             {
+                Point startPoint = new Point((UserTaskList.Width - TaskWidth) / 2, TaskListGap_Top);
                 int TaskOffest_Y = 0;
-                
+
                 while (reader.Read())
                 {
                     #region ParametersGetting
@@ -108,11 +99,19 @@ namespace ClarenceTodoist
 
                     if (!is_Done)
                     {
-                        #region LabelDrawing
-
+                        // 任务显示：任务完成按钮 + label文本 + 灰色横线间隔(美观考虑)
                         TaskOffest_Y += TaskGap_Top;
+                        #region DoneTaskBtn
 
-                        int LabelX = startPoint.X;
+                        int ButtonX = startPoint.X;
+                        int ButtonY = startPoint.Y + TaskOffest_Y;
+                        DoneTaskBtn btn = new DoneTaskBtn(UserTaskList, ButtonX, ButtonY, DoneBtnSize); 
+
+                        #endregion
+
+                        #region LabelDrawing
+                        //Label x坐标空出任务完成按钮位置
+                        int LabelX = startPoint.X + DoneBtnSize + 10;
                         int LabelY = startPoint.Y + TaskOffest_Y;
                         Label label = new Label
                         {
@@ -152,6 +151,10 @@ namespace ClarenceTodoist
                     }
                 }
                 MysqlVisit.CloseMysql();
+
+                // 创建按钮与任务显示下用以添加新任务
+                TaskOffest_Y += GapOfTaskCreateButton;
+                UserTaskList.Controls.Add(Create_CreateTaskButton(startPoint.X, startPoint.Y + TaskOffest_Y));
             }
         }
         #endregion
@@ -201,5 +204,36 @@ namespace ClarenceTodoist
         }
 
         #endregion
+
+        private Button Create_CreateTaskButton(int X, int Y)
+        {
+            //C_Task即创建任务按钮的基本配置
+            Button C_Task = new Button
+            {
+                Location = new Point(X, Y),
+                Size = new Size(SizeOfTaskCreateButton, SizeOfTaskCreateButton),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.White,
+                BackgroundImageLayout = ImageLayout.Zoom,
+                BackgroundImage = Image.FromFile("../../Images/TaskList/PlusSign.png"),
+                Text = ""
+            };
+            //去边缘，设置悬停颜色，绑定点击事件
+            C_Task.FlatAppearance.BorderSize = 0;
+            C_Task.FlatAppearance.MouseOverBackColor = Color.Gray;
+            C_Task.Click += new EventHandler(Create_Button_Click);
+
+            //改变C_Task按钮形状为圆形
+            var path = new System.Drawing.Drawing2D.GraphicsPath();
+            int CircleDia = C_Task.Width;
+            path.AddEllipse(0, 0, CircleDia, CircleDia);
+            C_Task.Region = new Region(path);
+
+            this.Controls.Add(C_Task);
+            C_Task.BringToFront();
+
+            //返回按钮控件
+            return C_Task;
+        }
     }
 }

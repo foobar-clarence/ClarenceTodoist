@@ -37,7 +37,7 @@
             this.ClientSize = new System.Drawing.Size(1744, 1127);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "TaskList";
-            this.Text = "TaskList";
+            this.Text = "Butt";
             this.Load += new System.EventHandler(this.TaskList_Load);
             this.ResumeLayout(false);
 
